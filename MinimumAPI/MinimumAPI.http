@@ -1,0 +1,10 @@
+// テスト用のベース URL（起動時のポートに合わせて変更）
+@MinimumAPI_HostAddress = http://localhost:5161
+
+// 天気予報 API を呼ぶサンプル
+GET {{MinimumAPI_HostAddress}}/weatherforecast/
+// JSON 形式で返してほしい旨を指定
+Accept: application/json
+
+// リクエスト区切り
+###

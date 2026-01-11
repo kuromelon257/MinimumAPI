@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <!-- ターゲットにする .NET のバージョン -->
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Nullable 参照型を有効化 -->
+    <Nullable>enable</Nullable>
+    <!-- using の暗黙インポートを有効化 -->
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- OpenAPI (Swagger) 生成用のパッケージ -->
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+  </ItemGroup>
+
+</Project>
