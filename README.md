@@ -1,11 +1,19 @@
 # MinimumAPI
 
-ASP.NET Core Minimal API の最小サンプルです。`/weatherforecast` を返す API と、開発時の OpenAPI 公開が含まれます。
+ASP.NET Core Minimal API の小〜中規模向けクリーンアーキテクチャ構成です。`/weatherforecast` を返す API と、開発時の OpenAPI 公開が含まれます。
 
 ## ファイル/フォルダの役割
 
 - `Program.cs`  
-  アプリのエントリーポイント。サービス登録、ミドルウェア設定、`/weatherforecast` のエンドポイント定義があります。
+  アプリのエントリーポイント。DI 登録とミドルウェア設定、エンドポイント登録を行います。
+- `Application/`  
+  ユースケースの境界とアプリケーション層の型を置きます。
+- `Domain/`  
+  業務概念のモデルを定義します。
+- `Infrastructure/`  
+  外部依存や具体実装をまとめます。
+- `Presentation/`  
+  API のエンドポイント定義をまとめます。
 - `MinimumAPI.csproj`  
   .NET ターゲットや参照パッケージなど、ビルド設定をまとめたプロジェクトファイルです。
 - `MinimumAPI.http`  
