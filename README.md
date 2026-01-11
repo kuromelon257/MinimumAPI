@@ -35,3 +35,9 @@ ASP.NET Core Minimal API の小〜中規模向けクリーンアーキテクチ�
 dotnet build
 dotnet run
 ```
+
+## テスト
+
+```bash
+dotnet test
+```

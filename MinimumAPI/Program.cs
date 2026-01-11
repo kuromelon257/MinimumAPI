@@ -28,3 +28,7 @@ app.MapWeatherForecastEndpoints();
 
 // アプリの受信開始
 app.Run();
+
+public partial class Program
+{
+}
