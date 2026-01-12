@@ -42,6 +42,29 @@ dotnet run
 dotnet test
 ```
 
+## テストでモックを自動生成する（Moq + AutoFixture.AutoMoq）
+
+Moqは定番のモックライブラリで、AutoFixture.AutoMoqを使うと依存を自動的にモック化してくれます。  
+テスト対象のクラスを `fixture.Create<T>()` で生成すると、コンストラクタ依存が自動でモックになります。
+
+例（テストコード）：
+
+```csharp
+using Moq;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using MinimumAPI.Application.Abstractions;
+
+var fixture = new Fixture().Customize(new AutoMoqCustomization());
+var queryMock = fixture.Freeze<Mock<IWeatherForecastQuery>>();
+queryMock.Setup(query => query.GetForecasts())
+    .Returns(new List<WeatherForecast>());
+
+var service = fixture.Create<WeatherForecastService>();
+```
+
+具体例は `MinimumAPI.Tests/Application/AutoMockerTests.cs` を参照してください。
+
 ## コンテナ化とAWSデプロイ（App Runner 推奨）
 
 ### ローカルでコンテナを起動

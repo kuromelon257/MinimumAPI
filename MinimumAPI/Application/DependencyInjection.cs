@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using MinimumAPI.Application.UseCases;
 
 namespace MinimumAPI.Application;
 
@@ -12,6 +13,7 @@ public static class DependencyInjection
     /// </summary>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddScoped<IWeatherForecastUseCase, WeatherForecastUseCase>();
         return services;
     }
 }

@@ -1,4 +1,4 @@
-using MinimumAPI.Application.Abstractions;
+using MinimumAPI.Application.UseCases;
 
 namespace MinimumAPI.Presentation.Endpoints;
 
@@ -13,7 +13,7 @@ public static class WeatherForecastEndpoints
     public static IEndpointRouteBuilder MapWeatherForecastEndpoints(this IEndpointRouteBuilder app)
     {
         // GET /weatherforecast で 5 日分の予報を返す
-        app.MapGet("/weatherforecast", (IWeatherForecastQuery query) => query.GetForecasts())
+        app.MapGet("/weatherforecast", (IWeatherForecastUseCase useCase) => useCase.Execute())
         // エンドポイント名を付ける（ルートの識別子）
         .WithName("GetWeatherForecast");
 

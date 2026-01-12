@@ -1,39 +1,56 @@
-using System.Collections.Generic;
-using System.Net;
-using System.Text.Json;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Testing;
-using MinimumAPI.Domain;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using MinimumAPI.Application;
+using MinimumAPI.Application.UseCases;
+using MinimumAPI.Presentation.Endpoints;
 using Xunit;
 
 namespace MinimumAPI.Tests.Presentation;
 
-public class WeatherForecastEndpointTests : IClassFixture<WebApplicationFactory<Program>>
+public class WeatherForecastEndpointTests
 {
-    private readonly WebApplicationFactory<Program> _factory;
-
-    public WeatherForecastEndpointTests(WebApplicationFactory<Program> factory)
+    [Fact(DisplayName = "エンドポイントを登録した場合、UseCaseが1回呼ばれること")]
+    public async Task MapWeatherForecastEndpoints_CallsUseCaseOnce()
     {
-        _factory = factory;
-    }
+        // Arrange: WebApplicationを構築（起動はしない）
+        var fixture = new Fixture().Customize(new AutoMoqCustomization());
+        var useCaseMock = fixture.Freeze<Mock<IWeatherForecastUseCase>>();
+        useCaseMock.Setup(useCase => useCase.Execute()).Returns([]);
 
-    [Fact(DisplayName = "/weatherforecast を呼んだ場合、5件が返ること")]
-    public async Task GetWeatherForecast_ReturnsFiveItems()
-    {
-        // Arrange: テスト用の HTTP クライアントを生成
-        using var client = _factory.CreateClient();
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddApplication();
+        builder.Services.AddSingleton<IWeatherForecastUseCase>(useCaseMock.Object);
+        var app = builder.Build();
 
-        // Act: エンドポイントを呼び出し
-        using var response = await client.GetAsync("/weatherforecast");
+        // Act: エンドポイント登録
+        app.MapWeatherForecastEndpoints();
 
-        // Assert: ステータスと件数を確認
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        // Assert: エンドポイント実行でUseCaseが呼ばれる
+        var endpointRouteBuilder = (IEndpointRouteBuilder)app;
+        var endpoints = endpointRouteBuilder.DataSources
+            .SelectMany(source => source.Endpoints)
+            .OfType<RouteEndpoint>();
+        var weatherEndpoint = endpoints.First(endpoint =>
+            endpoint.RoutePattern.RawText == "/weatherforecast" &&
+            endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods.Contains("GET") == true &&
+            endpoint.Metadata.GetMetadata<EndpointNameMetadata>()?.EndpointName == "GetWeatherForecast");
 
-        var json = await response.Content.ReadAsStringAsync();
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var forecasts = JsonSerializer.Deserialize<List<WeatherForecast>>(json, options);
+        var context = new DefaultHttpContext
+        {
+            RequestServices = app.Services,
+            Response = { Body = new MemoryStream() }
+        };
 
-        Assert.NotNull(forecasts);
-        Assert.Equal(5, forecasts!.Count);
+        Assert.NotNull(weatherEndpoint.RequestDelegate);
+        await weatherEndpoint.RequestDelegate(context);
+        useCaseMock.Verify(useCase => useCase.Execute(), Times.Once);
     }
 }
